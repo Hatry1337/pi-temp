@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import http from "http";
 
 const port = 8090;
-const host = "127.0.0.1";
+const host = "0.0.0.0";
 const logPath = "/home/pi/temperature.log"
 
 /**
