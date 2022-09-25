@@ -15,7 +15,7 @@ const requestListener = async (req, res) => {
         case "/": {
             res.setHeader("Content-Type", "text/html");
             res.writeHead(200);
-            res.end(await fs.readFile("./static/index.html"));
+            res.end(await fs.readFile(__dirname + "/static/index.html"));
             break;
         }
         case "/data": {
