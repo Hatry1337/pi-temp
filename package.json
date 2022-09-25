@@ -1,13 +1,30 @@
 {
   "name": "pi-temp",
   "version": "1.0.0",
-  "main": "server.js",
+  "description": "",
   "type": "module",
+  "main": "src/main.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hatry1337/pi-temp.git"
+  },
+  "author": "Hatry1337",
+  "bugs": {
+    "url": "https://github.com/Hatry1337/pi-temp/issues"
+  },
+  "homepage": "https://github.com/Hatry1337/pi-temp#readme",
+  "devDependencies": {
+    "@types/node": "^18.7.21"
+  },
+  "dependencies": {
+    "chalk": "^5.0.1",
+    "dotenv": "^16.0.2",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^6.23.1",
+    "sequelize-typescript": "^2.1.3",
+    "sqlite3": "^5.1.1"
+  }
 }

@@ -1,127 +1,189 @@
 <!DOCTYPE html>
 <html lang="">
-  <head>
-    <meta charset="utf-8" />
-    <title></title>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  </head>
-  <body>
-    <div id="chart"></div>
+    <head>
+        <meta charset="utf-8" />
+        <title></title>
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    </head>
+    <body>
+        <div id="chart"></div>
 
-    <script>
-      let lastTs = 0;
+        <button onclick="setRange(0);">1 Hour</button>
+        <button onclick="setRange(1);">24 Hours</button>
+        <button onclick="setRange(2);">7 Days</button>
+        <button onclick="setRange(3);">30 Days</button>
+        <button onclick="setRange(4);">1 Year</button>
+        <button onclick="setDetailed(true);">Enable Detailed View</button>
+        <button onclick="setDetailed(false);">Disable Detailed View</button>
 
-      (async () => {
-        let rsp = await fetch("/data");
-        let data = await rsp.json();
-        let humid = data.map(v => [v.ts, v.humid]);
-        let temp = data.map(v => [v.ts, v.temp]);
+        <script>
+                let from = new Date().getTime() - 24 * 60 * 60 * 1000;
+                let to = new Date().getTime();
+                let detailed = false;
 
-        lastTs = (new Date(data[data.length-1])).getTime();
-        chart(temp, humid);
-      })();
-      
-      function chart(temp, humid){
-        var options = {
-          series: [
-            {
-              name: "Temperature",
-              data: temp,
-            },
-            {
-              name: "Humidity",
-              data: humid,
-            },
-          ],
-          chart: {
-            type: "area",
-            stacked: false,
-            height: 350,
-            zoom: {
-              type: "x",
-              enabled: true,
-              autoScaleYaxis: true,
-            },
-            toolbar: {
-              autoSelected: "zoom",
-            },
-          },
-          dataLabels: {
-            enabled: false,
-          },
-          markers: {
-            size: 0,
-          },
-          title: {
-            text: "Temperature / Humidity data",
-            align: "left",
-          },
-          fill: {
-            type: "gradient",
-            gradient: {
-              shadeIntensity: 1,
-              inverseColors: false,
-              opacityFrom: 0.5,
-              opacityTo: 0,
-              stops: [0, 90, 100],
-            },
-          },
-          yaxis: {
-            labels: {
-              formatter: function (val) {
-                return val.toFixed(2);
-              },
-            },
-            title: {
-              text: "Value",
-            },
-          },
-          xaxis: {
-            type: "datetime",
-            labels: {
-              formatter: function (value, timestamp) {
-                return (new Date(timestamp)).toLocaleString()
-              }, 
-            }
-          },
-          tooltip: {
-            shared: false,
-            y: {
-              formatter: function (val) {
-                return val.toFixed(2);
-              },
-            },
-          },
-        };
+                function setDetailed(v){
+                    detailed = v;
+                    if(detailed){
+                        updateChartDetailed();
+                    }else{
+                        updateChart();
+                    }
+                }
 
-        var chart = new ApexCharts(document.querySelector("#chart"), options);
-        chart.render();
+                function setRange(range){
+                    from = new Date().getTime();
+                    to = new Date().getTime();
 
-        /*
-        window.setInterval(async () => {
-          let rsp = await fetch("/data");
-          let data = await rsp.json();
-          let humid = data.map(v => [v.ts, v.humid]);
-          let temp = data.map(v => [v.ts, v.temp]);
-        
-          humid = humid.filter(v => (new Date(v[0])).getTime() > lastTs);
-          temp = temp.filter(v => (new Date(v[0])).getTime() > lastTs);
+                    switch(range){
+                        case 0: {
+                            from -= 60 * 60 * 1000;
+                            break;
+                        }
+                        case 1: {
+                            from -= 24 * 60 * 60 * 1000;
+                            break;
+                        }
+                        case 2: {
+                            from -= 7 * 24 * 60 * 60 * 1000;
+                            break;
+                        }
+                        case 3: {
+                            from -= 30 * 24 * 60 * 60 * 1000;
+                            break;
+                        }
+                        case 4: {
+                            from -= 365 * 24 * 60 * 60 * 1000;
+                            break;
+                        }
+                        default: {
+                            from -= 24 * 60 * 60 * 1000;
+                            break;
+                        }
+                    }
 
-          if(humid.length !== 0){
-            chart.appendData([
-              {
-                data: temp,
-              },
-              {
-                data: humid,
-              },
-            ])
+                    updateChart();
+                }
 
-            lastTs = (new Date(humid[humid.length-1][0])).getTime();
-          }
-        }, 1000)
-        */
-      }
-    </script>
-  </body>
+                let chartOptions = {
+                    series: [
+                        {
+                            name: "Temperature",
+                            data: [],
+                        },
+                        {
+                            name: "Humidity",
+                            data: [],
+                        },
+                    ],
+                    chart: {
+                        type: "area",
+                        stacked: false,
+                        height: 350,
+                        zoom: {
+                            type: "x",
+                            enabled: true,
+                            autoScaleYaxis: true,
+                        },
+                        toolbar: {
+                            autoSelected: "zoom",
+                        },
+                    },
+                    dataLabels: {
+                        enabled: false,
+                    },
+                    markers: {
+                        size: 0,
+                    },
+                    title: {
+                        text: "Temperature / Humidity data",
+                        align: "left",
+                    },
+                    fill: {
+                        type: "gradient",
+                        gradient: {
+                            shadeIntensity: 1,
+                            inverseColors: false,
+                            opacityFrom: 0.5,
+                            opacityTo: 0,
+                            stops: [0, 90, 100],
+                        },
+                    },
+                    yaxis: {
+                        labels: {
+                            formatter: function (val) {
+                                return val.toFixed(2);
+                            },
+                        },
+                        title: {
+                            text: "Value",
+                        },
+                    },
+                    xaxis: {
+                        type: "datetime",
+                        labels: {
+                            formatter: function (value, timestamp) {
+                                return (new Date(timestamp)).toLocaleString()
+                            },
+                        }
+                    },
+                    tooltip: {
+                        shared: false,
+                        y: {
+                            formatter: function (val) {
+                                return val.toFixed(2);
+                            },
+                        },
+                    },
+                };
+
+                var chart = new ApexCharts(document.querySelector("#chart"), chartOptions);
+                chart.render();
+
+                async function updateChart() {
+                    let rsp = await fetch(`/data?from=${from}&to=${to}`);
+                    let data = await rsp.json();
+                    let humid = data.map(v => [v.date, v.humidity]);
+                    let temp = data.map(v => [v.date, v.temperature]);
+
+                    chart.updateSeries([
+                        {
+                            name: "Temperature",
+                            data: temp,
+                        },
+                        {
+                            name: "Humidity",
+                            data: humid,
+                        },
+                    ]);
+                }
+                
+                async function updateChartDetailed() {
+                    let rsp = await fetch(`/data_detailed`);
+                    let data = await rsp.json();
+                    let humid = data.map(v => [v.date, v.humidity]);
+                    let temp = data.map(v => [v.date, v.temperature]);
+
+                    chart.updateSeries([
+                        {
+                            name: "Temperature",
+                            data: temp,
+                        },
+                        {
+                            name: "Humidity",
+                            data: humid,
+                        },
+                    ]);
+                }
+
+                document.addEventListener("DOMContentLoaded", () => {
+                    updateChart();
+                });
+
+                window.setInterval(async () => {
+                    if(detailed){
+                        updateChartDetailed();
+                    }
+                }, 1000);
+        </script>
+    </body>
 </html>
